@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilim O'yini</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    text-align:center;
+    color:white;
+    background:url("bg.png") no-repeat center center fixed;
+    background-size:cover;
+}
+
+.container{
+    background:rgba(0,0,0,0.5);
+    width:80%;
+    margin:30px auto;
+    padding:20px;
+    border-radius:20px;
+}
+
+#gameArea{
+    position:relative;
+    height:250px;
+    margin-top:20px;
+}
+
+#bola{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:120px;
+    transition:1s;
+}
+
+button{
+    padding:10px 20px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    transform:scale(1.1);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bilim Sinovi</h1>
+    <h3 id="question">Savol yuklanmoqda...</h3>
+    <div id="answers"></div>
+
+    <div id="gameArea">
+        <img src="bola.png" id="bola">
+    </div>
+
+    <h2 id="result"></h2>
+</div>
+
+<script>
+
+const questions = [
+{
+    question: "O‘zbekiston poytaxti qayer?",
+    answers: ["Samarqand", "Buxoro", "Toshkent", "Xiva"],
+    correct: 2
+},
+{
+    question: "5 + 3 nechiga teng?",
+    answers: ["6", "7", "8", "9"],
+    correct: 2
+},
+{
+    question: "Eng katta sayyora?",
+    answers: ["Mars", "Yer", "Yupiter", "Venera"],
+    correct: 2
+},
+{
+    question: "Suv formulasi?",
+    answers: ["CO2", "H2O", "O2", "NaCl"],
+    correct: 1
+},
+{
+    question: "9 x 2 nechiga teng?",
+    answers: ["16", "18", "20", "21"],
+    correct: 1
+}
+];
+
+let currentQuestion = 0;
+let score = 0;
+let position = 0;
+
+function loadQuestion(){
+    if(currentQuestion >= questions.length){
+        document.getElementById("question").innerHTML = "O'yin tugadi!";
+        document.getElementById("answers").innerHTML = "";
+        document.getElementById("result").innerHTML = "Natija: " + score + " / " + questions.length;
+        return;
+    }
+
+    document.getElementById("question").innerHTML = questions[currentQuestion].question;
+    let answersDiv = document.getElementById("answers");
+    answersDiv.innerHTML = "";
+
+    questions[currentQuestion].answers.forEach((answer,index)=>{
+        let btn = document.createElement("button");
+        btn.innerHTML = answer;
+        btn.onclick = function(){ checkAnswer(index); };
+        answersDiv.appendChild(btn);
+    });
+}
+
+function checkAnswer(index){
+    if(index === questions[currentQuestion].correct){
+        score++;
+        position += 100;
+        document.getElementById("bola").style.left = position + "px";
+    }
+
+    currentQuestion++;
+    loadQuestion();
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
