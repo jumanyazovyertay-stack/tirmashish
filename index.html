@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bilim O'yini</title>
+<title>Arqonga Tirmashish O'yini</title>
 
 <style>
 body{
@@ -25,14 +25,27 @@ body{
 
 #gameArea{
     position:relative;
-    height:250px;
+    height:400px;
     margin-top:20px;
 }
 
+/* ARQON */
+#rope{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    width:6px;
+    height:350px;
+    background:linear-gradient(to bottom,#d2a679,#a67c52);
+    border-radius:10px;
+}
+
+/* BOLA */
 #bola{
     position:absolute;
     bottom:0;
-    left:0;
+    left:50%;
+    transform:translateX(-50%);
     width:120px;
     transition:1s;
 }
@@ -54,11 +67,12 @@ button:hover{
 <body>
 
 <div class="container">
-    <h1>Bilim Sinovi</h1>
+    <h1>Arqonga Tirmash!</h1>
     <h3 id="question">Savol yuklanmoqda...</h3>
     <div id="answers"></div>
 
     <div id="gameArea">
+        <div id="rope"></div>
         <img src="bola.png" id="bola">
     </div>
 
@@ -69,41 +83,42 @@ button:hover{
 
 const questions = [
 {
-    question: "O‘zbekiston poytaxti qayer?",
-    answers: ["Samarqand", "Buxoro", "Toshkent", "Xiva"],
+    question: "5 + 5 nechiga teng?",
+    answers: ["8", "9", "10", "11"],
     correct: 2
 },
 {
-    question: "5 + 3 nechiga teng?",
-    answers: ["6", "7", "8", "9"],
-    correct: 2
+    question: "O‘zbekiston poytaxti?",
+    answers: ["Buxoro", "Toshkent", "Xiva", "Urganch"],
+    correct: 1
 },
 {
-    question: "Eng katta sayyora?",
-    answers: ["Mars", "Yer", "Yupiter", "Venera"],
-    correct: 2
+    question: "3 x 4 nechiga teng?",
+    answers: ["7", "12", "14", "10"],
+    correct: 1
 },
 {
     question: "Suv formulasi?",
-    answers: ["CO2", "H2O", "O2", "NaCl"],
-    correct: 1
+    answers: ["H2O", "CO2", "O2", "NaCl"],
+    correct: 0
 },
 {
-    question: "9 x 2 nechiga teng?",
-    answers: ["16", "18", "20", "21"],
-    correct: 1
+    question: "9 + 6 nechiga teng?",
+    answers: ["14", "16", "15", "13"],
+    correct: 2
 }
 ];
 
 let currentQuestion = 0;
 let score = 0;
-let position = 0;
+let climbHeight = 0;
 
 function loadQuestion(){
     if(currentQuestion >= questions.length){
         document.getElementById("question").innerHTML = "O'yin tugadi!";
         document.getElementById("answers").innerHTML = "";
-        document.getElementById("result").innerHTML = "Natija: " + score + " / " + questions.length;
+        document.getElementById("result").innerHTML = 
+        "Natija: " + score + " / " + questions.length;
         return;
     }
 
@@ -122,8 +137,8 @@ function loadQuestion(){
 function checkAnswer(index){
     if(index === questions[currentQuestion].correct){
         score++;
-        position += 100;
-        document.getElementById("bola").style.left = position + "px";
+        climbHeight += 70; // har to'g'ri javobda 70px yuqoriga
+        document.getElementById("bola").style.bottom = climbHeight + "px";
     }
 
     currentQuestion++;
