@@ -2,219 +2,200 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arqon Musobaqasi</title>
+<title>Mantiqiy Arqon Musobaqasi</title>
 
 <style>
 body{
     margin:0;
-    font-family:Arial, sans-serif;
-    text-align:center;
+    font-family:Arial;
+    background:url("bg.png") no-repeat center/cover;
     color:white;
-    background:url("bg.png") no-repeat center center fixed;
-    background-size:cover;
+    text-align:center;
 }
 
 .container{
-    background:rgba(0,0,0,0.6);
-    width:90%;
-    margin:20px auto;
-    padding:20px;
+    background:rgba(0,0,0,0.65);
+    width:95%;
+    margin:15px auto;
+    padding:15px;
     border-radius:20px;
 }
 
 #gameArea{
     display:flex;
     justify-content:space-around;
-    margin-top:20px;
     height:420px;
+    margin-top:15px;
+}
+
+.column{
+    width:45%;
     position:relative;
 }
 
-/* Rope spiral effect */
 .rope{
     width:8px;
     height:350px;
+    margin:auto;
     background:repeating-linear-gradient(
         45deg,
-        #d2a679,
-        #d2a679 10px,
-        #a67c52 10px,
-        #a67c52 20px
+        #d8b384,
+        #d8b384 10px,
+        #a87c4f 10px,
+        #a87c4f 20px
     );
     border-radius:10px;
-    position:relative;
-    margin:auto;
 }
 
-/* Player */
 .player{
     position:absolute;
     bottom:0;
-    width:100px;
+    left:50%;
+    transform:translateX(-50%);
+    width:95px;
     transition:0.7s;
 }
 
-/* Columns */
-.column{
-    position:relative;
-    width:45%;
-}
-
 button{
-    padding:10px 20px;
-    margin:10px;
+    padding:10px 18px;
+    margin:6px;
     border:none;
     border-radius:10px;
-    cursor:pointer;
     font-size:16px;
+    cursor:pointer;
 }
 
-button:hover{
-    transform:scale(1.1);
-}
+button:hover{ transform:scale(1.1); }
 
-#turn{
-    font-size:20px;
+.score{
+    font-size:18px;
     font-weight:bold;
-    margin-top:10px;
 }
 
 .confetti{
     position:fixed;
     width:10px;
     height:10px;
-    background:red;
     animation:fall 3s linear infinite;
 }
 
 @keyframes fall{
-    0%{transform:translateY(-100px);}
-    100%{transform:translateY(100vh);}
+    from{transform:translateY(-100px);}
+    to{transform:translateY(100vh);}
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>🏆 Arqonga Tirmash Musobaqasi</h1>
+<h1>🧠 Mantiqiy Arqon Musobaqasi</h1>
 
-<h3 id="turn">1-Guruh navbati</h3>
+<div class="score">
+1-Guruh balli: <span id="score1">0</span> |
+2-Guruh balli: <span id="score2">0</span>
+</div>
+
+<h3 id="turn">1-guruh navbati</h3>
 <h3 id="question"></h3>
 <div id="answers"></div>
 
 <div id="gameArea">
-
 <div class="column">
-    <h2>1-Guruh</h2>
-    <div class="rope"></div>
-    <img src="bola1.png" class="player" id="player1">
+<h3>1-Guruh</h3>
+<div class="rope"></div>
+<img src="bola1.png" id="player1" class="player">
 </div>
 
 <div class="column">
-    <h2>2-Guruh</h2>
-    <div class="rope"></div>
-    <img src="bola2.png" class="player" id="player2">
+<h3>2-Guruh</h3>
+<div class="rope"></div>
+<img src="bola2.png" id="player2" class="player">
 </div>
-
 </div>
 
 <h2 id="result"></h2>
-
 </div>
 
 <script>
-
 const questions = [
-{question:"6 + 4 =", answers:["8","10","12","9"], correct:1},
-{question:"O‘zbekiston poytaxti?", answers:["Samarqand","Toshkent","Buxoro","Xiva"], correct:1},
-{question:"5 x 3 =", answers:["15","10","20","12"], correct:0},
-{question:"Suv formulasi?", answers:["CO2","O2","H2O","NaCl"], correct:2},
-{question:"9 + 8 =", answers:["15","17","18","16"], correct:1}
+{q:"Agar 3 ta qalam 15 ming bo‘lsa, 1 tasi nech pul?",a:["3 ming","4 ming","5 ming","6 ming"],c:2},
+{q:"Soat 3:15 bo‘lsa, soat millari orasidagi burchak taxminan nechchi?",a:["0°","7.5°","30°","45°"],c:1},
+{q:"Qaysi son ortiqcha: 2, 4, 8, 16, 18?",a:["2","8","16","18"],c:3},
+{q:"1, 1, 2, 3, 5, ? ketma-ketlikni davom ettiring",a:["6","7","8","10"],c:2},
+{q:"Agar barcha mushuklar hayvon bo‘lsa, barcha hayvonlar tirik bo‘lsa, mushuklar…",a:["uchadi","tirik","o‘simlik","yo‘qoladi"],c:1},
+{q:"5 ta ishchini ishni 10 kunda tugatsa, 10 ishchi necha kunda?",a:["20","10","5","2"],c:2},
+{q:"Qaysi shakl mantiqan mos kelmaydi?",a:["Doira","Kvadrat","Uchburchak","Raqam"],c:3},
+{q:"Agar bugun payshanba bo‘lsa, 100 kundan keyin qaysi kun?",a:["Juma","Yakshanba","Shanba","Payshanba"],c:1},
+{q:"Bir kishi yolg‘iz yashaydi, lekin har kuni mehmon keladi. Kim?",a:["Do‘konchi","Qabriston qorovuli","Pochta","O‘qituvchi"],c:2},
+{q:"Qaysi so‘z boshqalaridan farq qiladi?",a:["O‘qish","Yozish","Yugurish","Kitob"],c:3},
+
+{q:"4, 9, 16, 25, ?",a:["30","36","49","64"],c:1},
+{q:"Qaysi javob to‘g‘ri mantiqiy davom?",a:["AB, CD, EF, ?","GH","FG","EG","HI"],c:0},
+{q:"Bir so‘z barcha tillarda bir xil eshitiladi. Qaysi?",a:["Radio","Telefon","Internet","Signal"],c:0},
+{q:"Qaysi biri sabab, qaysi biri oqibat: yomg‘ir yog‘di – yer ho‘l bo‘ldi",a:["Yer sabab","Yomg‘ir sabab","Ikkalasi","Hech biri"],c:1},
+{q:"Eng og‘ir narsa qaysi?",a:["1 kg temir","1 kg paxta","Ikkalasi teng","Boshqa"],c:2},
+{q:"Agar hamma yolg‘on gapirsa, rost gapiruvchi kim?",a:["Hamma","Hech kim","Mantiq","Bitta"],c:1},
+{q:"Bir xonada 4 burchak bo‘lsa, bitta burchak kesilsa nechta qoladi?",a:["5","6","7","8"],c:2},
+{q:"Qaysi javob mantiqan to‘g‘ri?",a:["Kun – tun","Yoz – sovuq","Qor – issiq","Kecha – bugun"],c:0},
+{q:"Bir odamning 5 o‘g‘li, har birining singlisi bor. Nechta farzand?",a:["5","6","10","11"],c:1},
+{q:"Mantiqiy jihatdan qaysi tezroq?",a:["Nur","Tovush","Mashina","Odam"],c:0}
 ];
 
-let currentQuestion = 0;
-let turn = 1;
-let climb1 = 0;
-let climb2 = 0;
-const maxHeight = 300;
+let i=0, turn=1;
+let h1=0, h2=0;
+let s1=0, s2=0;
+const step=18, max=300;
 
-function loadQuestion(){
-    if(currentQuestion >= questions.length){
-        document.getElementById("question").innerHTML="O'yin tugadi!";
-        document.getElementById("answers").innerHTML="";
-        return;
-    }
-
-    document.getElementById("question").innerHTML=questions[currentQuestion].question;
-    let answersDiv=document.getElementById("answers");
-    answersDiv.innerHTML="";
-
-    questions[currentQuestion].answers.forEach((answer,index)=>{
-        let btn=document.createElement("button");
-        btn.innerHTML=answer;
-        btn.onclick=function(){checkAnswer(index)};
-        answersDiv.appendChild(btn);
-    });
-
-    document.getElementById("turn").innerHTML=
-        turn===1?"1-Guruh navbati":"2-Guruh navbati";
+function load(){
+if(i>=questions.length){finish();return;}
+document.getElementById("question").innerText=questions[i].q;
+document.getElementById("turn").innerText=turn===1?"1-guruh navbati":"2-guruh navbati";
+let a=document.getElementById("answers"); a.innerHTML="";
+questions[i].a.forEach((x,j)=>{
+let b=document.createElement("button");
+b.innerText=x; b.onclick=()=>check(j);
+a.appendChild(b);
+});
 }
 
-function checkAnswer(index){
-
-if(index===questions[currentQuestion].correct){
-
-    if(turn===1){
-        climb1+=60;
-        if(climb1>maxHeight) climb1=maxHeight;
-        document.getElementById("player1").style.bottom=climb1+"px";
-        if(climb1>=maxHeight) win(1);
-    }else{
-        climb2+=60;
-        if(climb2>maxHeight) climb2=maxHeight;
-        document.getElementById("player2").style.bottom=climb2+"px";
-        if(climb2>=maxHeight) win(2);
-    }
-
+function check(j){
+let ok=j===questions[i].c;
+if(turn===1){
+if(ok){h1+=step;s1+=5}else{h1-=step;s1-=2}
+h1=Math.max(0,Math.min(h1,max));
+document.getElementById("player1").style.bottom=h1+"px";
+document.getElementById("score1").innerText=s1;
+if(h1>=max) win(1);
 }else{
-
-    if(turn===1){
-        climb1-=30;
-        if(climb1<0) climb1=0;
-        document.getElementById("player1").style.bottom=climb1+"px";
-    }else{
-        climb2-=30;
-        if(climb2<0) climb2=0;
-        document.getElementById("player2").style.bottom=climb2+"px";
-    }
-
+if(ok){h2+=step;s2+=5}else{h2-=step;s2-=2}
+h2=Math.max(0,Math.min(h2,max));
+document.getElementById("player2").style.bottom=h2+"px";
+document.getElementById("score2").innerText=s2;
+if(h2>=max) win(2);
+}
+turn=turn===1?2:1; i++; load();
 }
 
-turn = turn===1?2:1;
-currentQuestion++;
-loadQuestion();
+function win(t){
+document.getElementById("result").innerText="🎉 "+t+"-GURUH G‘OLIB!";
+document.getElementById("answers").innerHTML="";
+for(let i=0;i<80;i++){
+let c=document.createElement("div");
+c.className="confetti";
+c.style.left=Math.random()*100+"vw";
+c.style.background="hsl("+Math.random()*360+",100%,50%)";
+document.body.appendChild(c);
+}
 }
 
-function win(team){
-    document.getElementById("result").innerHTML="🎉 "+team+"-Guruh G‘olib!";
-    document.getElementById("answers").innerHTML="";
-    createConfetti();
+function finish(){
+document.getElementById("result").innerText=
+s1>s2?"🏆 1-Guruh yutdi":
+s2>s1?"🏆 2-Guruh yutdi":"🤝 Durrang!";
+document.getElementById("answers").innerHTML="";
 }
 
-function createConfetti(){
-    for(let i=0;i<80;i++){
-        let conf=document.createElement("div");
-        conf.classList.add("confetti");
-        conf.style.left=Math.random()*100+"vw";
-        conf.style.backgroundColor=
-        "hsl("+Math.random()*360+",100%,50%)";
-        document.body.appendChild(conf);
-    }
-}
-
-loadQuestion();
-
+load();
 </script>
 
 </body>
