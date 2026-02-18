@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arqonga Tirmashish O'yini</title>
+<title>Arqon Musobaqasi</title>
 
 <style>
 body{
@@ -16,38 +16,49 @@ body{
 }
 
 .container{
-    background:rgba(0,0,0,0.5);
-    width:80%;
-    margin:30px auto;
+    background:rgba(0,0,0,0.6);
+    width:90%;
+    margin:20px auto;
     padding:20px;
     border-radius:20px;
 }
 
 #gameArea{
-    position:relative;
-    height:400px;
+    display:flex;
+    justify-content:space-around;
     margin-top:20px;
+    height:420px;
+    position:relative;
 }
 
-/* ARQON */
-#rope{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    width:6px;
+/* Rope spiral effect */
+.rope{
+    width:8px;
     height:350px;
-    background:linear-gradient(to bottom,#d2a679,#a67c52);
+    background:repeating-linear-gradient(
+        45deg,
+        #d2a679,
+        #d2a679 10px,
+        #a67c52 10px,
+        #a67c52 20px
+    );
     border-radius:10px;
+    position:relative;
+    margin:auto;
 }
 
-/* BOLA */
-#bola{
+/* Player */
+.player{
     position:absolute;
     bottom:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:120px;
-    transition:1s;
+    width:100px;
+    transition:0.7s;
+}
+
+/* Columns */
+.column{
+    position:relative;
+    width:45%;
 }
 
 button{
@@ -62,87 +73,144 @@ button{
 button:hover{
     transform:scale(1.1);
 }
+
+#turn{
+    font-size:20px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.confetti{
+    position:fixed;
+    width:10px;
+    height:10px;
+    background:red;
+    animation:fall 3s linear infinite;
+}
+
+@keyframes fall{
+    0%{transform:translateY(-100px);}
+    100%{transform:translateY(100vh);}
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Arqonga Tirmash!</h1>
-    <h3 id="question">Savol yuklanmoqda...</h3>
-    <div id="answers"></div>
+<h1>🏆 Arqonga Tirmash Musobaqasi</h1>
 
-    <div id="gameArea">
-        <div id="rope"></div>
-        <img src="bola.png" id="bola">
-    </div>
+<h3 id="turn">1-Guruh navbati</h3>
+<h3 id="question"></h3>
+<div id="answers"></div>
 
-    <h2 id="result"></h2>
+<div id="gameArea">
+
+<div class="column">
+    <h2>1-Guruh</h2>
+    <div class="rope"></div>
+    <img src="bola1.png" class="player" id="player1">
+</div>
+
+<div class="column">
+    <h2>2-Guruh</h2>
+    <div class="rope"></div>
+    <img src="bola2.png" class="player" id="player2">
+</div>
+
+</div>
+
+<h2 id="result"></h2>
+
 </div>
 
 <script>
 
 const questions = [
-{
-    question: "5 + 5 nechiga teng?",
-    answers: ["8", "9", "10", "11"],
-    correct: 2
-},
-{
-    question: "O‘zbekiston poytaxti?",
-    answers: ["Buxoro", "Toshkent", "Xiva", "Urganch"],
-    correct: 1
-},
-{
-    question: "3 x 4 nechiga teng?",
-    answers: ["7", "12", "14", "10"],
-    correct: 1
-},
-{
-    question: "Suv formulasi?",
-    answers: ["H2O", "CO2", "O2", "NaCl"],
-    correct: 0
-},
-{
-    question: "9 + 6 nechiga teng?",
-    answers: ["14", "16", "15", "13"],
-    correct: 2
-}
+{question:"6 + 4 =", answers:["8","10","12","9"], correct:1},
+{question:"O‘zbekiston poytaxti?", answers:["Samarqand","Toshkent","Buxoro","Xiva"], correct:1},
+{question:"5 x 3 =", answers:["15","10","20","12"], correct:0},
+{question:"Suv formulasi?", answers:["CO2","O2","H2O","NaCl"], correct:2},
+{question:"9 + 8 =", answers:["15","17","18","16"], correct:1}
 ];
 
 let currentQuestion = 0;
-let score = 0;
-let climbHeight = 0;
+let turn = 1;
+let climb1 = 0;
+let climb2 = 0;
+const maxHeight = 300;
 
 function loadQuestion(){
     if(currentQuestion >= questions.length){
-        document.getElementById("question").innerHTML = "O'yin tugadi!";
-        document.getElementById("answers").innerHTML = "";
-        document.getElementById("result").innerHTML = 
-        "Natija: " + score + " / " + questions.length;
+        document.getElementById("question").innerHTML="O'yin tugadi!";
+        document.getElementById("answers").innerHTML="";
         return;
     }
 
-    document.getElementById("question").innerHTML = questions[currentQuestion].question;
-    let answersDiv = document.getElementById("answers");
-    answersDiv.innerHTML = "";
+    document.getElementById("question").innerHTML=questions[currentQuestion].question;
+    let answersDiv=document.getElementById("answers");
+    answersDiv.innerHTML="";
 
     questions[currentQuestion].answers.forEach((answer,index)=>{
-        let btn = document.createElement("button");
-        btn.innerHTML = answer;
-        btn.onclick = function(){ checkAnswer(index); };
+        let btn=document.createElement("button");
+        btn.innerHTML=answer;
+        btn.onclick=function(){checkAnswer(index)};
         answersDiv.appendChild(btn);
     });
+
+    document.getElementById("turn").innerHTML=
+        turn===1?"1-Guruh navbati":"2-Guruh navbati";
 }
 
 function checkAnswer(index){
-    if(index === questions[currentQuestion].correct){
-        score++;
-        climbHeight += 70; // har to'g'ri javobda 70px yuqoriga
-        document.getElementById("bola").style.bottom = climbHeight + "px";
+
+if(index===questions[currentQuestion].correct){
+
+    if(turn===1){
+        climb1+=60;
+        if(climb1>maxHeight) climb1=maxHeight;
+        document.getElementById("player1").style.bottom=climb1+"px";
+        if(climb1>=maxHeight) win(1);
+    }else{
+        climb2+=60;
+        if(climb2>maxHeight) climb2=maxHeight;
+        document.getElementById("player2").style.bottom=climb2+"px";
+        if(climb2>=maxHeight) win(2);
     }
 
-    currentQuestion++;
-    loadQuestion();
+}else{
+
+    if(turn===1){
+        climb1-=30;
+        if(climb1<0) climb1=0;
+        document.getElementById("player1").style.bottom=climb1+"px";
+    }else{
+        climb2-=30;
+        if(climb2<0) climb2=0;
+        document.getElementById("player2").style.bottom=climb2+"px";
+    }
+
+}
+
+turn = turn===1?2:1;
+currentQuestion++;
+loadQuestion();
+}
+
+function win(team){
+    document.getElementById("result").innerHTML="🎉 "+team+"-Guruh G‘olib!";
+    document.getElementById("answers").innerHTML="";
+    createConfetti();
+}
+
+function createConfetti(){
+    for(let i=0;i<80;i++){
+        let conf=document.createElement("div");
+        conf.classList.add("confetti");
+        conf.style.left=Math.random()*100+"vw";
+        conf.style.backgroundColor=
+        "hsl("+Math.random()*360+",100%,50%)";
+        document.body.appendChild(conf);
+    }
 }
 
 loadQuestion();
